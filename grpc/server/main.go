@@ -6,6 +6,7 @@ import (
 	pb "github.com/aman-av/grpc/proto"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -59,6 +60,31 @@ func (s *server) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) (*pb
 func (s *server) DeleteTask(ctx context.Context, req *pb.DeleteTaskRequest) (*pb.Empty, error) {
 	delete(s.tasks, req.Id)
 	return &pb.Empty{}, nil
+}
+
+func (s *server) CreateTasks(stream pb.TodoService_CreateTasksServer) error {
+	var createdCount int32
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// Successfully received all tasks; now respond
+			return stream.SendAndClose(&pb.CreateTasksResponse{
+				CreatedCount: createdCount,
+			})
+		}
+		if err != nil {
+			break
+		}
+		id := uuid.New().String()
+		task := &pb.Task{
+			Id:          id,
+			Title:       req.Title,
+			Description: req.Description,
+		}
+		s.tasks[id] = task
+		createdCount++
+	}
+	return nil
 }
 
 func main() {

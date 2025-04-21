@@ -8,9 +8,17 @@ option go_package = "./proto;todo";
 service TodoService {
   rpc CreateTask(CreateTaskRequest) returns (Task);
   rpc GetTask(GetTaskRequest) returns (Task);
+
+  // This is a server streaming RPC
   rpc ListTasks(Empty) returns (stream Task);
   rpc UpdateTask(UpdateTaskRequest) returns (Task);
   rpc DeleteTask(DeleteTaskRequest) returns (Empty);
+
+  // This is a client streaming RPC
+  rpc CreateTasks(stream CreateTaskRequest) returns (CreateTasksResponse);
+}
+message CreateTasksResponse {
+  int32 created_count = 1;
 }
 
 message Task {
