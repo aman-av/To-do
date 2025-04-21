@@ -87,6 +87,26 @@ func (s *server) CreateTasks(stream pb.TodoService_CreateTasksServer) error {
 	return nil
 }
 
+func (s *server) TaskChat(stream pb.TodoService_TaskChatServer) error {
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+		task, exists := s.tasks[req.Id]
+		if !exists {
+			return fmt.Errorf("task not found")
+		}
+		
+		if err := stream.Send(task); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 func main() {
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"time"
 
@@ -17,7 +18,7 @@ func main() {
 	defer conn.Close()
 	client := pb.NewTodoServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*25)
 	defer cancel()
 
 	stream, err := client.CreateTasks(ctx)
@@ -43,6 +44,7 @@ func main() {
 	}
 	log.Printf("Bulk Created Tasks: %d", res.CreatedCount)
 
+	taskIDs := make([]string, 0)
 	// List Tasks
 	stream2, err := client.ListTasks(ctx, &pb.Empty{})
 	if err != nil {
@@ -53,6 +55,37 @@ func main() {
 		if err != nil {
 			break
 		}
+		taskIDs = append(taskIDs, task.Id)
 		log.Printf("Task: %v", task)
 	}
+
+	stream3, err := client.TaskChat(ctx)
+	if err != nil {
+		log.Fatalf("could not open stream: %v", err)
+	}
+
+	// Use a goroutine to send IDs
+	go func() {
+		for _, id := range taskIDs {
+			err := stream3.Send(&pb.GetTaskRequest{Id: id})
+			if err != nil {
+				log.Fatalf("error sending ID: %v", err)
+			}
+			time.Sleep(1 * time.Millisecond) // simulate staggered sending
+		}
+		stream3.CloseSend()
+	}()
+
+	// Receive responses
+	for {
+		task, err := stream3.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("error receiving task: %v", err)
+		}
+		log.Printf("Got Task: %v", task)
+	}
+
 }

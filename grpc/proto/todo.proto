@@ -6,16 +6,21 @@ package todo;
 option go_package = "./proto;todo";
 
 service TodoService {
+
+  // This is a unary RPC
   rpc CreateTask(CreateTaskRequest) returns (Task);
   rpc GetTask(GetTaskRequest) returns (Task);
-
-  // This is a server streaming RPC
-  rpc ListTasks(Empty) returns (stream Task);
   rpc UpdateTask(UpdateTaskRequest) returns (Task);
   rpc DeleteTask(DeleteTaskRequest) returns (Empty);
 
+  // This is a server streaming RPC
+  rpc ListTasks(Empty) returns (stream Task);
+
   // This is a client streaming RPC
   rpc CreateTasks(stream CreateTaskRequest) returns (CreateTasksResponse);
+
+  // This is a bidirectional streaming RPC
+  rpc TaskChat(stream GetTaskRequest) returns (stream Task);
 }
 message CreateTasksResponse {
   int32 created_count = 1;

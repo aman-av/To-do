@@ -432,21 +432,23 @@ const file_proto_todo_proto_rawDesc = "" +
 	"\bTaskList\x12 \n" +
 	"\x05tasks\x18\x01 \x03(\v2\n" +
 	".todo.TaskR\x05tasks\"\a\n" +
-	"\x05Empty2\xc1\x02\n" +
+	"\x05Empty2\xf3\x02\n" +
 	"\vTodoService\x121\n" +
 	"\n" +
 	"CreateTask\x12\x17.todo.CreateTaskRequest\x1a\n" +
 	".todo.Task\x12+\n" +
 	"\aGetTask\x12\x14.todo.GetTaskRequest\x1a\n" +
-	".todo.Task\x12&\n" +
-	"\tListTasks\x12\v.todo.Empty\x1a\n" +
-	".todo.Task0\x01\x121\n" +
+	".todo.Task\x121\n" +
 	"\n" +
 	"UpdateTask\x12\x17.todo.UpdateTaskRequest\x1a\n" +
 	".todo.Task\x122\n" +
 	"\n" +
-	"DeleteTask\x12\x17.todo.DeleteTaskRequest\x1a\v.todo.Empty\x12C\n" +
-	"\vCreateTasks\x12\x17.todo.CreateTaskRequest\x1a\x19.todo.CreateTasksResponse(\x01B\x0eZ\f./proto;todob\x06proto3"
+	"DeleteTask\x12\x17.todo.DeleteTaskRequest\x1a\v.todo.Empty\x12&\n" +
+	"\tListTasks\x12\v.todo.Empty\x1a\n" +
+	".todo.Task0\x01\x12C\n" +
+	"\vCreateTasks\x12\x17.todo.CreateTaskRequest\x1a\x19.todo.CreateTasksResponse(\x01\x120\n" +
+	"\bTaskChat\x12\x14.todo.GetTaskRequest\x1a\n" +
+	".todo.Task(\x010\x01B\x0eZ\f./proto;todob\x06proto3"
 
 var (
 	file_proto_todo_proto_rawDescOnce sync.Once
@@ -475,18 +477,20 @@ var file_proto_todo_proto_depIdxs = []int32{
 	1, // 0: todo.TaskList.tasks:type_name -> todo.Task
 	2, // 1: todo.TodoService.CreateTask:input_type -> todo.CreateTaskRequest
 	3, // 2: todo.TodoService.GetTask:input_type -> todo.GetTaskRequest
-	7, // 3: todo.TodoService.ListTasks:input_type -> todo.Empty
-	4, // 4: todo.TodoService.UpdateTask:input_type -> todo.UpdateTaskRequest
-	5, // 5: todo.TodoService.DeleteTask:input_type -> todo.DeleteTaskRequest
+	4, // 3: todo.TodoService.UpdateTask:input_type -> todo.UpdateTaskRequest
+	5, // 4: todo.TodoService.DeleteTask:input_type -> todo.DeleteTaskRequest
+	7, // 5: todo.TodoService.ListTasks:input_type -> todo.Empty
 	2, // 6: todo.TodoService.CreateTasks:input_type -> todo.CreateTaskRequest
-	1, // 7: todo.TodoService.CreateTask:output_type -> todo.Task
-	1, // 8: todo.TodoService.GetTask:output_type -> todo.Task
-	1, // 9: todo.TodoService.ListTasks:output_type -> todo.Task
+	3, // 7: todo.TodoService.TaskChat:input_type -> todo.GetTaskRequest
+	1, // 8: todo.TodoService.CreateTask:output_type -> todo.Task
+	1, // 9: todo.TodoService.GetTask:output_type -> todo.Task
 	1, // 10: todo.TodoService.UpdateTask:output_type -> todo.Task
 	7, // 11: todo.TodoService.DeleteTask:output_type -> todo.Empty
-	0, // 12: todo.TodoService.CreateTasks:output_type -> todo.CreateTasksResponse
-	7, // [7:13] is the sub-list for method output_type
-	1, // [1:7] is the sub-list for method input_type
+	1, // 12: todo.TodoService.ListTasks:output_type -> todo.Task
+	0, // 13: todo.TodoService.CreateTasks:output_type -> todo.CreateTasksResponse
+	1, // 14: todo.TodoService.TaskChat:output_type -> todo.Task
+	8, // [8:15] is the sub-list for method output_type
+	1, // [1:8] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
