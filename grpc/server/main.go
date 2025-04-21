@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"time"
 )
 
 type server struct {
@@ -34,12 +35,15 @@ func (s *server) GetTask(ctx context.Context, req *pb.GetTaskRequest) (*pb.Task,
 	return task, nil
 }
 
-func (s *server) ListTasks(ctx context.Context, _ *pb.Empty) (*pb.TaskList, error) {
-	taskList := &pb.TaskList{}
+func (s *server) ListTasks(_ *pb.Empty, stream pb.TodoService_ListTasksServer) error {
 	for _, task := range s.tasks {
-		taskList.Tasks = append(taskList.Tasks, task)
+		// Simulate a delay
+		time.Sleep(1 * time.Second)
+		if err := stream.Send(task); err != nil {
+			return err
+		}
 	}
-	return taskList, nil
+	return nil
 }
 
 func (s *server) UpdateTask(ctx context.Context, req *pb.UpdateTaskRequest) (*pb.Task, error) {

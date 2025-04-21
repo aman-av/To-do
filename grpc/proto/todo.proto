@@ -8,7 +8,7 @@ option go_package = "./proto;todo";
 service TodoService {
   rpc CreateTask(CreateTaskRequest) returns (Task);
   rpc GetTask(GetTaskRequest) returns (Task);
-  rpc ListTasks(Empty) returns (TaskList);
+  rpc ListTasks(Empty) returns (stream Task);
   rpc UpdateTask(UpdateTaskRequest) returns (Task);
   rpc DeleteTask(DeleteTaskRequest) returns (Empty);
 }

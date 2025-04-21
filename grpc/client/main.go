@@ -22,43 +22,33 @@ func main() {
 
 	//Create Task
 	task, _ := client.CreateTask(ctx, &pb.CreateTaskRequest{
-		Title:       "Learn gRPC",
+		Title:       "Learn gRPC1",
+		Description: "Build a ToDo App",
+	})
+	log.Printf("Created Task: %v", task)
+
+	task, _ = client.CreateTask(ctx, &pb.CreateTaskRequest{
+		Title:       "Learn gRPC2",
+		Description: "Build a ToDo App",
+	})
+	log.Printf("Created Task: %v", task)
+
+	task, _ = client.CreateTask(ctx, &pb.CreateTaskRequest{
+		Title:       "Learn gRPC3",
 		Description: "Build a ToDo App",
 	})
 	log.Printf("Created Task: %v", task)
 
 	// List Tasks
-	taskList, _ := client.ListTasks(ctx, &pb.Empty{})
-	log.Println("Task List:")
-	for _, t := range taskList.Tasks {
-		log.Printf("- %v", t)
+	stream, err := client.ListTasks(ctx, &pb.Empty{})
+	if err != nil {
+		log.Fatalf("Error listing tasks: %v", err)
 	}
-
-	// Update Task
-	task, _ = client.UpdateTask(ctx, &pb.UpdateTaskRequest{
-		Id:          "dcb111e2-ec03-4fcf-a024-8bf2eed22536",
-		Title:       "Update gRPC",
-		Description: "Update a ToDo App",
-	})
-	log.Printf("Update Task: %v", task)
-
-	// List Tasks
-	taskList, _ = client.ListTasks(ctx, &pb.Empty{})
-	log.Println("Task List:")
-	for _, t := range taskList.Tasks {
-		log.Printf("- %v", t)
+	for {
+		task, err := stream.Recv()
+		if err != nil {
+			break
+		}
+		log.Printf("Task: %v", task)
 	}
-
-	// Delete Task
-	client.DeleteTask(ctx, &pb.DeleteTaskRequest{
-		Id: "d4793116-5f33-419c-bce3-ef6c37f5e520",
-	})
-
-	// List Tasks
-	taskList, _ = client.ListTasks(ctx, &pb.Empty{})
-	log.Println("Task List:")
-	for _, t := range taskList.Tasks {
-		log.Printf("- %v", t)
-	}
-
 }

@@ -34,7 +34,7 @@ const (
 type TodoServiceClient interface {
 	CreateTask(ctx context.Context, in *CreateTaskRequest, opts ...grpc.CallOption) (*Task, error)
 	GetTask(ctx context.Context, in *GetTaskRequest, opts ...grpc.CallOption) (*Task, error)
-	ListTasks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*TaskList, error)
+	ListTasks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Task], error)
 	UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*Task, error)
 	DeleteTask(ctx context.Context, in *DeleteTaskRequest, opts ...grpc.CallOption) (*Empty, error)
 }
@@ -67,15 +67,24 @@ func (c *todoServiceClient) GetTask(ctx context.Context, in *GetTaskRequest, opt
 	return out, nil
 }
 
-func (c *todoServiceClient) ListTasks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*TaskList, error) {
+func (c *todoServiceClient) ListTasks(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Task], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TaskList)
-	err := c.cc.Invoke(ctx, TodoService_ListTasks_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &TodoService_ServiceDesc.Streams[0], TodoService_ListTasks_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[Empty, Task]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TodoService_ListTasksClient = grpc.ServerStreamingClient[Task]
 
 func (c *todoServiceClient) UpdateTask(ctx context.Context, in *UpdateTaskRequest, opts ...grpc.CallOption) (*Task, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -103,7 +112,7 @@ func (c *todoServiceClient) DeleteTask(ctx context.Context, in *DeleteTaskReques
 type TodoServiceServer interface {
 	CreateTask(context.Context, *CreateTaskRequest) (*Task, error)
 	GetTask(context.Context, *GetTaskRequest) (*Task, error)
-	ListTasks(context.Context, *Empty) (*TaskList, error)
+	ListTasks(*Empty, grpc.ServerStreamingServer[Task]) error
 	UpdateTask(context.Context, *UpdateTaskRequest) (*Task, error)
 	DeleteTask(context.Context, *DeleteTaskRequest) (*Empty, error)
 	mustEmbedUnimplementedTodoServiceServer()
@@ -122,8 +131,8 @@ func (UnimplementedTodoServiceServer) CreateTask(context.Context, *CreateTaskReq
 func (UnimplementedTodoServiceServer) GetTask(context.Context, *GetTaskRequest) (*Task, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTask not implemented")
 }
-func (UnimplementedTodoServiceServer) ListTasks(context.Context, *Empty) (*TaskList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListTasks not implemented")
+func (UnimplementedTodoServiceServer) ListTasks(*Empty, grpc.ServerStreamingServer[Task]) error {
+	return status.Errorf(codes.Unimplemented, "method ListTasks not implemented")
 }
 func (UnimplementedTodoServiceServer) UpdateTask(context.Context, *UpdateTaskRequest) (*Task, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTask not implemented")
@@ -188,23 +197,16 @@ func _TodoService_GetTask_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TodoService_ListTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
-	if err := dec(in); err != nil {
-		return nil, err
+func _TodoService_ListTasks_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(TodoServiceServer).ListTasks(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TodoService_ListTasks_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoServiceServer).ListTasks(ctx, req.(*Empty))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(TodoServiceServer).ListTasks(m, &grpc.GenericServerStream[Empty, Task]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TodoService_ListTasksServer = grpc.ServerStreamingServer[Task]
 
 func _TodoService_UpdateTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateTaskRequest)
@@ -258,10 +260,6 @@ var TodoService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TodoService_GetTask_Handler,
 		},
 		{
-			MethodName: "ListTasks",
-			Handler:    _TodoService_ListTasks_Handler,
-		},
-		{
 			MethodName: "UpdateTask",
 			Handler:    _TodoService_UpdateTask_Handler,
 		},
@@ -270,6 +268,12 @@ var TodoService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _TodoService_DeleteTask_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ListTasks",
+			Handler:       _TodoService_ListTasks_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/todo.proto",
 }

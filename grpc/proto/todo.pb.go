@@ -386,14 +386,15 @@ const file_proto_todo_proto_rawDesc = "" +
 	"\bTaskList\x12 \n" +
 	"\x05tasks\x18\x01 \x03(\v2\n" +
 	".todo.TaskR\x05tasks\"\a\n" +
-	"\x05Empty2\xfe\x01\n" +
+	"\x05Empty2\xfc\x01\n" +
 	"\vTodoService\x121\n" +
 	"\n" +
 	"CreateTask\x12\x17.todo.CreateTaskRequest\x1a\n" +
 	".todo.Task\x12+\n" +
 	"\aGetTask\x12\x14.todo.GetTaskRequest\x1a\n" +
-	".todo.Task\x12(\n" +
-	"\tListTasks\x12\v.todo.Empty\x1a\x0e.todo.TaskList\x121\n" +
+	".todo.Task\x12&\n" +
+	"\tListTasks\x12\v.todo.Empty\x1a\n" +
+	".todo.Task0\x01\x121\n" +
 	"\n" +
 	"UpdateTask\x12\x17.todo.UpdateTaskRequest\x1a\n" +
 	".todo.Task\x122\n" +
@@ -431,7 +432,7 @@ var file_proto_todo_proto_depIdxs = []int32{
 	4, // 5: todo.TodoService.DeleteTask:input_type -> todo.DeleteTaskRequest
 	0, // 6: todo.TodoService.CreateTask:output_type -> todo.Task
 	0, // 7: todo.TodoService.GetTask:output_type -> todo.Task
-	5, // 8: todo.TodoService.ListTasks:output_type -> todo.TaskList
+	0, // 8: todo.TodoService.ListTasks:output_type -> todo.Task
 	0, // 9: todo.TodoService.UpdateTask:output_type -> todo.Task
 	6, // 10: todo.TodoService.DeleteTask:output_type -> todo.Empty
 	6, // [6:11] is the sub-list for method output_type
